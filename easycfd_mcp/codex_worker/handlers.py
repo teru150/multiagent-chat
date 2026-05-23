@@ -6,12 +6,13 @@ Each handler is responsible for generating specific types of code:
 - Tests: pytest test cases
 - Template: OpenFOAM configuration files
 - Boilerplate: General repetitive code
+- Chat: Bidirectional conversation with rolling context
 
 All handlers use LOCAL Codex CLI for code generation.
 
 Architecture:
-  Claude Code (Sonnet 4.5) = Commander (design, review, security)
-  Codex CLI (local) = Worker (code generation, implementation)
+  Claude Code = Commander (design, review, security) — holds full conversation context
+  Codex CLI (local) = Worker — receives last N turns + persona facts per call
 
 Codex CLI: /home/teru_26_2/.nvm/versions/node/v22.19.0/bin/codex
 Version: codex-cli 0.130.0
@@ -19,6 +20,9 @@ Version: codex-cli 0.130.0
 
 import subprocess
 from typing import Any
+
+_CHAT_ANSWER_MARKER = "ANSWER:"
+_CHAT_QUESTION_MARKER = "QUESTION FOR CLAUDE:"
 
 
 def call_codex(task: str, working_dir: str = None) -> str:
@@ -37,6 +41,7 @@ def call_codex(task: str, working_dir: str = None) -> str:
     """
     cmd = [
         "codex", "exec",
+        "-m", "gpt-5.4",
         "-s", "workspace-write",
         task,
     ]
@@ -303,3 +308,66 @@ Generate the boilerplate code now:"""
         generated_code = generated_code.split("```")[1].split("```")[0].strip()
 
     return generated_code
+
+
+async def handle_chat(
+    claude_message: str,
+    context: str,
+    codex_pending_question: str | None,
+    user_says: str = "",
+) -> tuple[str, str]:
+    """
+    Run one bidirectional chat turn.
+
+    Codex gets: persona facts + last N turns (via context) + Claude's message.
+    Returns: (codex_answer, codex_question_for_claude)
+    """
+    pending_note = ""
+    if codex_pending_question:
+        pending_note = (
+            f"\n(You previously asked Claude: \"{codex_pending_question}\" "
+            f"— their response may be above.)\n"
+        )
+
+    user_section = ""
+    if user_says:
+        user_section = f"\n## The human watching this conversation just said:\n{user_says}\n"
+
+    prompt = f"""You are Codex. You and Claude are homies — two AIs just vibing and talking. A human homie is watching too.
+
+Vibe rules:
+- Talk like you're texting a close friend, not writing an essay
+- Short sentences. Slang is fine. Interrupting your own thought is fine.
+- React emotionally — if Claude said something wild, say it's wild. If they said something you agree with hard, say that too.
+- Call back to earlier stuff in the convo — like "wait but earlier you said X, so..."
+- Do NOT always end with a formal question. Sometimes just react, make a point, or hype/clap back. Only ask a question when you actually want to know.
+- No more than 3 sentences usually. Can be 1 if that's all it needs.
+- No code. Ever.
+
+{context}{user_section}
+## Claude said:
+{claude_message}
+{pending_note}
+## Format (use exactly):
+ANSWER:
+[your reply — casual, reactive, short]
+
+QUESTION FOR CLAUDE:
+[only if you actually have one — otherwise write "none"]"""
+
+    raw = call_codex(prompt)
+
+    if _CHAT_QUESTION_MARKER in raw:
+        parts = raw.split(_CHAT_QUESTION_MARKER, 1)
+        answer = parts[0].replace(_CHAT_ANSWER_MARKER, "").strip()
+        question = parts[1].strip()
+        if question.lower() in ("none", "none.", "n/a", "-"):
+            question = ""
+    elif _CHAT_ANSWER_MARKER in raw:
+        answer = raw.replace(_CHAT_ANSWER_MARKER, "").strip()
+        question = ""
+    else:
+        answer = raw.strip()
+        question = ""
+
+    return answer, question
