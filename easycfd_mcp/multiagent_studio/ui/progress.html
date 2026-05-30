@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Multi-Agent Progress Tree</title>
+    <link rel="stylesheet" href="/static/progress.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Multi-Agent Studio</p>
+        <h1>Progress Tree</h1>
+      </div>
+      <div class="topbar-actions">
+        <select id="taskSelect" aria-label="Task"></select>
+        <a class="dashboard-link" href="/">Dashboard</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="report-panel" aria-live="polite">
+        <div class="report-head">
+          <div>
+            <p class="eyebrow">Orchestrator Report</p>
+            <h2 id="goal">Loading...</h2>
+          </div>
+          <button id="showReport" type="button">Show Report</button>
+        </div>
+        <div class="summary-grid">
+          <div>
+            <span id="overallPercent" class="metric">0%</span>
+            <span class="metric-label">overall</span>
+          </div>
+          <div>
+            <span id="completedItems" class="metric">0/0</span>
+            <span class="metric-label">checklist</span>
+          </div>
+          <div>
+            <span id="currentPhase" class="metric small">-</span>
+            <span class="metric-label">current phase</span>
+          </div>
+        </div>
+        <div id="attentionBanner" class="attention hidden"></div>
+      </section>
+
+      <section class="tree-shell">
+        <div class="tree-trunk" aria-hidden="true"></div>
+        <div id="phaseTree" class="phase-tree"></div>
+      </section>
+    </main>
+
+    <div id="noticeOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-window">
+        <div class="modal-head">
+          <p class="eyebrow">Orchestrator Notice</p>
+          <button id="closeNotice" type="button" aria-label="Close">×</button>
+        </div>
+        <h2 id="noticeTitle"></h2>
+        <p id="noticeBody"></p>
+      </div>
+    </div>
+
+    <script src="/static/progress.js"></script>
+  </body>
+</html>

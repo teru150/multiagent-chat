@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multi-Agent Studio</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Multi-Agent Studio</p>
+          <h1 data-i18n="appTitle">Conversation Mission Control</h1>
+        </div>
+        <div class="top-actions">
+          <div class="segmented compact" role="group" aria-label="Language">
+            <button class="language-button active" data-language="en" type="button">EN</button>
+            <button class="language-button" data-language="ja" type="button">日本語</button>
+          </div>
+          <button id="stopAgentsButton" class="danger-button" type="button" data-i18n="stopAgents">Stop agents</button>
+          <label class="search">
+            <span data-i18n="search">Search</span>
+            <input id="searchInput" type="search" placeholder="agent, type, text" data-i18n-placeholder="searchPlaceholder">
+          </label>
+          <button id="refreshButton" type="button" data-i18n="refresh">Refresh</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="sidebar" aria-label="Task list">
+          <div class="section-head">
+            <h2 data-i18n="tasks">Tasks</h2>
+            <span id="taskCount" class="muted"></span>
+          </div>
+          <div id="taskList" class="task-list"></div>
+        </aside>
+
+        <section class="workspace" aria-label="Conversation workspace">
+          <div class="task-overview">
+            <div>
+              <p id="taskStatus" class="eyebrow"></p>
+              <h2 id="taskGoal" data-i18n="selectTask">Select a task</h2>
+            </div>
+            <div id="metrics" class="metrics"></div>
+          </div>
+
+          <form id="composeForm" class="composer">
+            <div class="composer-row">
+              <label>
+                <span data-i18n="recipient">Recipient</span>
+                <select id="recipientSelect">
+                  <option value="orchestrator">orchestrator</option>
+                  <option value="claude">claude</option>
+                  <option value="codex">codex</option>
+                  <option value="all">all</option>
+                </select>
+              </label>
+              <label>
+                <span data-i18n="messageType">Type</span>
+                <select id="messageTypeSelect">
+                  <option value="chat">chat</option>
+                  <option value="request_review">request_review</option>
+                  <option value="proposal">proposal</option>
+                  <option value="objection">objection</option>
+                  <option value="decision">decision</option>
+                </select>
+              </label>
+            </div>
+            <label class="compose-message">
+              <span data-i18n="messageToOrchestrator">Message</span>
+              <textarea id="composeInput" rows="3" data-i18n-placeholder="composePlaceholder" placeholder="Send a note, instruction, or question to the orchestrator"></textarea>
+            </label>
+            <div class="composer-actions">
+              <span id="composeStatus" class="muted"></span>
+              <button id="sendMessageButton" type="submit" data-i18n="send">Send</button>
+            </div>
+          </form>
+
+          <div class="controls">
+            <div class="segmented" role="group" aria-label="Message filter">
+              <button class="segment active" data-filter="all" type="button" data-i18n="all">All</button>
+              <button class="segment" data-filter="claude" type="button">Claude</button>
+              <button class="segment" data-filter="codex" type="button">Codex</button>
+              <button class="segment" data-filter="human" type="button">Human</button>
+            </div>
+            <label class="toggle">
+              <input id="fullToggle" type="checkbox">
+              <span data-i18n="showFullText">Show full text</span>
+            </label>
+            <label class="toggle">
+              <input id="hideAutoInvokedToggle" type="checkbox">
+              <span data-i18n="hideAutoInvoked">Hide auto-invoked logs</span>
+            </label>
+          </div>
+
+          <div id="conversation" class="conversation"></div>
+        </section>
+
+        <aside class="inspector" aria-label="Task inspector">
+          <section>
+            <div class="section-head">
+              <h2 data-i18n="agents">Agents</h2>
+              <button id="resetAllSessionsButton" class="small-button" type="button" data-i18n="reloadAll">Reload all</button>
+            </div>
+            <div id="agents" class="agent-list"></div>
+          </section>
+
+          <section>
+            <div class="section-head">
+              <h2 data-i18n="missionBoard">Mission Board</h2>
+            </div>
+            <div id="workItems" class="work-list"></div>
+          </section>
+
+          <section>
+            <div class="section-head">
+              <h2 data-i18n="artifactsReviews">Artifacts & Reviews</h2>
+            </div>
+            <div id="artifacts" class="artifact-list"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <dialog id="messageDialog" class="message-dialog">
+      <div class="dialog-head">
+        <div>
+          <p id="dialogMeta" class="eyebrow"></p>
+          <h2 id="dialogTitle" data-i18n="fullMessage">Full message</h2>
+        </div>
+        <button id="closeDialog" type="button" aria-label="Close" data-i18n="close">Close</button>
+      </div>
+      <pre id="dialogContent"></pre>
+    </dialog>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

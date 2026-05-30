@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(del create_mcp_reload_ux_artifact.py)",
+      "Bash(del:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
